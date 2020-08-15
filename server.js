@@ -7,12 +7,34 @@ io.on("connection", (socket) => {
   socket.on("set-message", (msg) => {
     socket.broadcast.emit("get-message", msg);
   });
-
-  socket.on("set-type", (typeName) => {
-    console.log(typeName);
-    socket.broadcast.emit("get-type", typeName);
-  });
 });
-console.log('gi');
 
 server.listen(3001);
+// const express = require('express');
+// const http = require('http');
+// const socketIo = require('socket.io');
+
+// const port = 3001;
+
+// const app = express();
+
+// const server = http.createServer(app);
+
+// const io = socketIo(server); // < Interesting!
+
+// io.on('connection', (socket) => {
+//   console.log('New client connected');
+//   socket.on('disconnect', () => {
+//     console.log('Client disconnected');
+//   });
+
+//   socket.on('new_message', (value) => {
+//     io.sockets.emit('message', value);
+//   });
+
+//   socket.on('typing', (user) => {
+//     socket.broadcast.emit('typing', user);
+//   });
+// });
+
+// io.listen(port, () => console.log(`Listening on port ${port}`));
