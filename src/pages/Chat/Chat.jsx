@@ -1,66 +1,79 @@
-import React from 'react';
-import './Chat.css';
-import Message from './components/Message';
-import io from 'socket.io-client';
+import React from "react";
+import "./Chat.css";
+import Message from "./components/Message";
+import io from "socket.io-client";
 
-const socket = io.connect('http://localhost:3001', { transports: ['websocket'] });
+const socket = io.connect("http://localhost:3001", {
+  transports: ["websocket"],
+});
 
 function Chat() {
-  const [name, setName] = React.useState('');
-  const [nameUser, setNameUser] = React.useState('');
-  const [msg, setMsg] = React.useState('');
-  const [msgUser, setMsgUser] = React.useState('');
-  const [massMess, setMassMsg] = React.useState([])
+  const [name, setName] = React.useState("");
+  const [username, setUsername] = React.useState("Tanya");
+  const [message, setMessage] = React.useState("");
+  const [messages, setMessages] = React.useState([]);
 
-  const changeUserMsg = () => {
-    const msgs = {
-      message: msg,
-      username: name
+  const getUserName = (e) => setName(e.target.value);
+  const changeUserName = () => setUsername(name);
+  const getUserMessage = (e) => setMessage(e.target.value);
+
+  const sendUserMessage = () => {
+    const msg = {
+      message,
+      username,
     };
-    setMassMsg((messages) => [...massMess, msg]);
-    ioClient.emit('send-message', msgs);
+    setMessages((messages) => [...messages, msg]);
+    socket.emit("set-message", msg);
+    socket.emit('set-type',msg.username)
   };
-  // ()=>{...messages, msg}
-  const changeUserName = () =>{
-    setNameUser(name);
-    // socket.emit('sendName', name);
-  }
 
-  const changeUserMsg = () =>{
-    setMsgUser(msg);
-    socket.emit('sendMessage', {nameUser,msgUser});
-    socket.on('getMessage', (msgUser)=>{
-      setMassMsg(updateMessage=[...msgUser])
+  React.useEffect(() => {
+    socket.on("get-message", (msg) => {
+      setMessages((messages) => [...messages, msg]);
     });
-  }
-  
+
+  }, []);
+
   return (
     <div className="chat">
       <header>
         <h1>Super Chat</h1>
       </header>
+
       <section>
         <div id="change_username">
-          <input 
-           id = "username"
-           type = "text"
-           onChange = {(e)=> {setName(e.target.value)}}
-           value= {name}
-           />
-          <button id = "send_username" type = "button" onClick = {changeUserName}>Change name</button>
+          <input
+            id="username"
+            type="text"
+            name="message"
+            onChange={getUserName}
+          />
+          <button id="send_username" type="button" onClick={changeUserName}>
+            Change username
+          </button>
         </div>
       </section>
 
       <section id="chatroom">
-
-{      massMess.map((item)=>
-  <Message username={item.name} message={item.msg} />
-) }       
-        <section id="feedback"></section>
-      </section> 
+        {messages.map((item) => (
+          <Message username={item.username} message={item.message} />
+        ))}
+      </section>
       <section id="input_zone">
-        <input id="message" className="vertical-align" type="text"   value= {msg}  onChange = {(e)=> {setMsg(e.target.value)}}/>
-        <button id="send_message" className="vertical-align" type="button" onClick = {changeUserMsg}>Send</button>
+        <input
+          id="message"
+          className="vertical-align"
+          type="text"
+          onChange={getUserMessage}
+        />
+        <button
+          id="send_message"
+          className="vertical-align"
+          type="button"
+          onClick={sendUserMessage}
+        >
+          Send
+        </button>
       </section>
     </div>
   );
